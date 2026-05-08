@@ -23,8 +23,8 @@ export interface Product {
   description?: string;
   price: number;
   stock: number;
-  images: ProductImage[];
-  variants: ProductVariant[];
+  images: ProductImage[] | null;
+  variants: ProductVariant[] | null;
   categoryId?: string;
   category?: Category;
   isActive: boolean;

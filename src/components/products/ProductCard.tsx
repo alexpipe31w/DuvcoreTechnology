@@ -20,9 +20,9 @@ export function ProductCard({ product }: ProductCardProps) {
   const [addedId, setAddedId] = useState<string | null>(null);
 
   const image = product.images?.[0]?.url;
-  const isNew =
-    Date.now() - new Date(product.createdAt).getTime() <
-    30 * 24 * 60 * 60 * 1000;
+  const isNew = product.createdAt
+    ? Date.now() - new Date(product.createdAt).getTime() < 30 * 24 * 60 * 60 * 1000
+    : false;
   const isLowStock = product.stock > 0 && product.stock <= 5;
   const isOutOfStock = product.stock === 0;
 

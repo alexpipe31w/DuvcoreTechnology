@@ -15,15 +15,16 @@ export function ProductDetail({ product }: { product: Product }) {
   const { openCart } = useCartStore();
 
   const [selectedImage, setSelectedImage] = useState(0);
+  const variants = product.variants ?? [];
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(
-    product.hasVariants && product.variants.length > 0
-      ? product.variants.find((v) => v.isActive && v.stock > 0) ?? null
+    product.hasVariants && variants.length > 0
+      ? (variants.find((v) => v.isActive && v.stock > 0) ?? null)
       : null
   );
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
 
-  const activeVariants = product.variants.filter((v) => v.isActive);
+  const activeVariants = variants.filter((v) => v.isActive);
   const currentPrice = selectedVariant?.price ?? product.price;
   const currentStock = selectedVariant?.stock ?? product.stock;
   const isOutOfStock = currentStock === 0;
@@ -79,9 +80,9 @@ export function ProductDetail({ product }: { product: Product }) {
             )}
           </motion.div>
 
-          {product.images?.length > 1 && (
+          {(product.images?.length ?? 0) > 1 && (
             <div className="flex gap-2 overflow-x-auto">
-              {product.images.map((img, i) => (
+              {product.images!.map((img, i) => (
                 <button
                   key={img.id}
                   onClick={() => setSelectedImage(i)}

@@ -103,7 +103,7 @@ export async function addToCart(payload: AddToCartPayload): Promise<Cart> {
 
   let verifiedPrice: number;
   if (payload.variantId && product.hasVariants) {
-    const variant = product.variants.find((v) => v.id === payload.variantId);
+    const variant = (product.variants ?? []).find((v) => v.id === payload.variantId);
     if (!variant) {
       throw new StockupApiError("VARIANT_NOT_FOUND", "Variant not found", 422);
     }
