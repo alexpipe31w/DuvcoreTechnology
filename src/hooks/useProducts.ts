@@ -41,10 +41,12 @@ export function useInfiniteProducts(params: Omit<GetProductsParams, "page"> = {}
     queryFn: ({ pageParam = 1 }) =>
       fetchProducts({ ...params, page: pageParam as number, limit: 20 }),
     initialPageParam: 1,
-    getNextPageParam: (lastPage) =>
-      lastPage.meta.page < lastPage.meta.totalPages
+    getNextPageParam: (lastPage) => {
+      if (!lastPage?.meta) return undefined;
+      return lastPage.meta.page < lastPage.meta.totalPages
         ? lastPage.meta.page + 1
-        : undefined,
+        : undefined;
+    },
     staleTime: 5 * 60 * 1000,
   });
 }

@@ -25,7 +25,8 @@ class StockupApiError extends Error {
 
 async function fetchStockup<T>(
   path: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  extractData = false
 ): Promise<T> {
   const url = `${BASE_URL}${path}`;
   const res = await fetch(url, {
@@ -50,7 +51,9 @@ async function fetchStockup<T>(
   }
 
   const json = await res.json();
-  return json.data ?? json;
+  // extractData=true → single-item endpoints: return json.data if present, else json
+  // extractData=false → paginated/full response: return json as-is
+  return extractData ? (json.data ?? json) : json;
 }
 
 // --- Products ---
@@ -75,19 +78,23 @@ export async function getProducts(
     query.set("isActive", String(params.isActive));
 
   const qs = query.toString();
+  // paginated → return full json (has data[] + meta)
   return fetchStockup<PaginatedResponse<Product>>(
-    `/products${qs ? `?${qs}` : ""}`
+    `/products${qs ? `?${qs}` : ""}`,
+    {},
+    false
   );
 }
 
 export async function getProductById(id: string): Promise<Product> {
-  return fetchStockup<Product>(`/products/${id}`);
+  // single item → extract .data
+  return fetchStockup<Product>(`/products/${id}`, {}, true);
 }
 
 // --- Cart ---
 
 export async function getOrCreateCart(sessionId: string): Promise<Cart> {
-  return fetchStockup<Cart>(`/cart?sessionId=${encodeURIComponent(sessionId)}`);
+  return fetchStockup<Cart>(`/cart?sessionId=${encodeURIComponent(sessionId)}`, {}, true);
 }
 
 export async function addToCart(payload: AddToCartPayload): Promise<Cart> {
@@ -119,17 +126,19 @@ export async function addToCart(payload: AddToCartPayload): Promise<Cart> {
     verifiedPrice = product.price;
   }
 
-  return fetchStockup<Cart>("/cart", {
-    method: "POST",
-    body: JSON.stringify({ ...payload, price: verifiedPrice }),
-  });
+  return fetchStockup<Cart>(
+    "/cart",
+    { method: "POST", body: JSON.stringify({ ...payload, price: verifiedPrice }) },
+    true
+  );
 }
 
 export async function updateCartItem(payload: UpdateCartPayload): Promise<Cart> {
-  return fetchStockup<Cart>("/cart", {
-    method: "PATCH",
-    body: JSON.stringify(payload),
-  });
+  return fetchStockup<Cart>(
+    "/cart",
+    { method: "PATCH", body: JSON.stringify(payload) },
+    true
+  );
 }
 
 export async function removeCartItem(cartItemId: string): Promise<Cart> {
@@ -146,10 +155,11 @@ export async function validateCoupon(
   const body: Record<string, unknown> = { code, subtotal };
   if (productIds?.length) body.productIds = productIds;
 
-  return fetchStockup<CouponValidationResult>("/products/coupons/validate", {
-    method: "POST",
-    body: JSON.stringify(body),
-  });
+  return fetchStockup<CouponValidationResult>(
+    "/products/coupons/validate",
+    { method: "POST", body: JSON.stringify(body) },
+    true
+  );
 }
 
 // --- Service requests ---
@@ -157,10 +167,11 @@ export async function validateCoupon(
 export async function createServiceRequest(
   payload: ServiceRequest
 ): Promise<{ orderNumber: string; trackingToken: string; status: string }> {
-  return fetchStockup("/service-request", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
+  return fetchStockup(
+    "/service-request",
+    { method: "POST", body: JSON.stringify(payload) },
+    true
+  );
 }
 
 // --- Checkout URL ---

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { ProductGridSkeleton } from "@/components/products/ProductGridSkeleton";
+import { ProductFilters } from "@/components/products/ProductFilters";
 
 export const metadata: Metadata = {
   title: "Productos",
@@ -13,7 +14,6 @@ interface ProductsPageProps {
   searchParams: Promise<{
     search?: string;
     categoryId?: string;
-    page?: string;
   }>;
 }
 
@@ -26,24 +26,41 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         <h1 className="text-3xl font-bold text-foreground">
           {params.search
             ? `Resultados para "${params.search}"`
-            : params.categoryId
-            ? "Productos por categoría"
             : "Todos los productos"}
         </h1>
-        <p className="text-muted-foreground mt-2">
-          Encuentra la tecnología que necesitas al mejor precio
+        <p className="text-muted-foreground mt-1 text-sm">
+          Tecnología original al mejor precio
         </p>
       </div>
 
-      <Suspense fallback={<ProductGridSkeleton />}>
-        <ProductGrid
-          filters={{
-            search: params.search,
-            categoryId: params.categoryId,
-            isActive: true,
-          }}
-        />
-      </Suspense>
+      <div className="flex gap-8">
+        {/* Sidebar — desktop */}
+        <div className="hidden lg:block w-52 flex-shrink-0">
+          <Suspense>
+            <ProductFilters />
+          </Suspense>
+        </div>
+
+        {/* Grid */}
+        <div className="flex-1 min-w-0">
+          {/* Mobile filters */}
+          <div className="lg:hidden mb-4">
+            <Suspense>
+              <ProductFilters />
+            </Suspense>
+          </div>
+
+          <Suspense fallback={<ProductGridSkeleton />}>
+            <ProductGrid
+              filters={{
+                search: params.search,
+                categoryId: params.categoryId,
+                isActive: true,
+              }}
+            />
+          </Suspense>
+        </div>
+      </div>
     </div>
   );
 }
