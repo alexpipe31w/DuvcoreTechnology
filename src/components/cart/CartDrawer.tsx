@@ -12,10 +12,11 @@ export function CartDrawer() {
   const { sessionId } = useCart();
 
   const handleCheckout = () => {
-    if (!sessionId) return;
-    const slug = process.env.NEXT_PUBLIC_STOCKUP_TENANT_SLUG ?? "";
+    if (!sessionId || items.length === 0) return;
+    const slug     = process.env.NEXT_PUBLIC_STOCKUP_TENANT_SLUG ?? "";
     const storeUrl = process.env.NEXT_PUBLIC_STOCKUP_STORE_URL ?? "https://stock-up-ashy.vercel.app";
-    const url = `${storeUrl}/checkout/${slug}?cartSessionId=${encodeURIComponent(sessionId)}`;
+    const productId = items[0].productId;
+    const url = `${storeUrl}/checkout/${slug}/${productId}?cartSessionId=${encodeURIComponent(sessionId)}`;
     window.open(url, "_blank", "noopener,noreferrer");
   };
 

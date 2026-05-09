@@ -177,8 +177,8 @@ export async function createServiceRequest(
 
 // --- Checkout URL ---
 
-export function getCheckoutUrl(sessionId: string): string {
+export function getCheckoutUrl(sessionId: string, firstProductId: string): string {
   const tenantSlug = process.env.STOCKUP_TENANT_SLUG!;
   const baseUrl = process.env.STOCKUP_STORE_URL ?? BASE_URL.replace("/api/public/v1", "");
-  return `${baseUrl}/checkout/${tenantSlug}?cartSessionId=${encodeURIComponent(sessionId)}`;
+  return `${baseUrl}/checkout/${tenantSlug}/${firstProductId}?cartSessionId=${encodeURIComponent(sessionId)}`;
 }
