@@ -25,12 +25,13 @@ async function postAddToCart(payload: {
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.error ?? "Error al agregar al carrito");
+    throw new Error(typeof err.error === "string" ? err.error : "Error al agregar al carrito");
   }
   return res.json();
 }
 
 async function patchCartItem(payload: {
+  cartId: string;
   cartItemId: string;
   quantity: number;
 }): Promise<Cart> {
@@ -41,7 +42,7 @@ async function patchCartItem(payload: {
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.error ?? "Error al actualizar carrito");
+    throw new Error(typeof err.error === "string" ? err.error : "Error al actualizar carrito");
   }
   return res.json();
 }
@@ -50,11 +51,8 @@ export function useCart() {
   const queryClient = useQueryClient();
   const { sessionId, setSessionId, setCart } = useCartStore();
 
-  // Ensure sessionId exists
   useEffect(() => {
-    if (!sessionId) {
-      setSessionId(uuidv4());
-    }
+    if (!sessionId) setSessionId(uuidv4());
   }, [sessionId, setSessionId]);
 
   const cartQuery = useQuery({
@@ -65,9 +63,7 @@ export function useCart() {
   });
 
   useEffect(() => {
-    if (cartQuery.data) {
-      setCart(cartQuery.data);
-    }
+    if (cartQuery.data) setCart(cartQuery.data);
   }, [cartQuery.data, setCart]);
 
   const addMutation = useMutation({
@@ -86,22 +82,19 @@ export function useCart() {
     },
   });
 
+  const cartId = cartQuery.data?.id ?? "";
+
   return {
     sessionId,
     cart: cartQuery.data,
     isLoading: cartQuery.isLoading,
     isError: cartQuery.isError,
     addToCart: (productId: string, quantity = 1, variantId?: string) =>
-      addMutation.mutateAsync({
-        sessionId: sessionId!,
-        productId,
-        variantId,
-        quantity,
-      }),
+      addMutation.mutateAsync({ sessionId: sessionId!, productId, variantId, quantity }),
     updateItem: (cartItemId: string, quantity: number) =>
-      updateMutation.mutateAsync({ cartItemId, quantity }),
+      updateMutation.mutateAsync({ cartId, cartItemId, quantity }),
     removeItem: (cartItemId: string) =>
-      updateMutation.mutateAsync({ cartItemId, quantity: 0 }),
+      updateMutation.mutateAsync({ cartId, cartItemId, quantity: 0 }),
     isAddingToCart: addMutation.isPending,
     isUpdating: updateMutation.isPending,
   };

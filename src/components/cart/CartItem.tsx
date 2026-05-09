@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { Minus, Plus, Trash2 } from "lucide-react";
+import { ProductImage } from "@/components/ui/product-image";
 import { motion } from "framer-motion";
 import { useCart } from "@/hooks/useCart";
 import { formatPrice } from "@/lib/utils";
@@ -14,7 +14,7 @@ interface CartItemProps {
 export function CartItem({ item }: CartItemProps) {
   const { updateItem, removeItem, isUpdating } = useCart();
 
-  const image = item.product?.images?.[0]?.url;
+  const image = item.product?.images?.[0];
   const name = item.product?.name ?? "Producto";
   const variantName = item.variant?.name;
 
@@ -28,19 +28,13 @@ export function CartItem({ item }: CartItemProps) {
     >
       {/* Image */}
       <div className="w-16 h-16 flex-shrink-0 rounded-lg bg-surface-elevated overflow-hidden">
-        {image ? (
-          <Image
-            src={image}
-            alt={name}
-            width={64}
-            height={64}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
-            Sin imagen
-          </div>
-        )}
+        <ProductImage
+          src={image}
+          alt={name}
+          width={64}
+          height={64}
+          className="w-full h-full object-cover"
+        />
       </div>
 
       {/* Info */}

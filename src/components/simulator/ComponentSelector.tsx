@@ -1,13 +1,28 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { Check, ChevronDown, ChevronUp, X, Search } from "lucide-react";
+import { ProductImage } from "@/components/ui/product-image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useProducts } from "@/hooks/useProducts";
 import { useSimulatorStore } from "@/store/simulator.store";
 import { formatPrice, cn } from "@/lib/utils";
 import type { ComponentCategory, ComponentCategoryConfig, Product } from "@/types";
+
+// Map each component category to a StockUp search term matching the real catalog
+const CATEGORY_FILTERS: Record<ComponentCategory, { categoryId?: string; search?: string }> = {
+  motherboard: { search: "B550" },
+  storage:     { search: "disco" },
+  monitor:     { search: "monitor" },
+  mouse:       { search: "logitech m" },
+  cpu:         { search: "procesador" },
+  ram:         { search: "memoria" },
+  gpu:         { search: "tarjeta video" },
+  psu:         { search: "fuente poder" },
+  cooler:      { search: "cooler" },
+  case:        { search: "gabinete" },
+  keyboard:    { search: "teclado" },
+};
 
 interface ComponentSelectorProps {
   categoryConfig: ComponentCategoryConfig;
@@ -20,21 +35,24 @@ export function ComponentSelector({ categoryConfig }: ComponentSelectorProps) {
   const { selectedComponents, addComponent, removeComponent } = useSimulatorStore();
   const selectedProduct = selectedComponents[categoryConfig.key];
 
-  const { data, isLoading } = useProducts({
-    search: search || undefined,
-    isActive: true,
-    limit: 20,
-  });
+  const baseFilter = CATEGORY_FILTERS[categoryConfig.key] ?? {};
+  const queryFilter = search
+    ? { search, isActive: true, limit: 20 }
+    : { ...baseFilter, isActive: true, limit: 20 };
 
+  const { data, isLoading } = useProducts(queryFilter);
   const products = data?.data ?? [];
 
   return (
     <div className="border border-border rounded-xl overflow-hidden">
       {/* Header */}
-      <button
+      <div
+        role="button"
+        tabIndex={0}
         onClick={() => setIsExpanded(!isExpanded)}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setIsExpanded(!isExpanded); } }}
         className={cn(
-          "w-full flex items-center gap-3 px-4 py-3 text-left transition-colors",
+          "w-full flex items-center gap-3 px-4 py-3 text-left transition-colors cursor-pointer",
           isExpanded ? "bg-surface-elevated" : "bg-surface hover:bg-surface-elevated"
         )}
       >
@@ -51,9 +69,7 @@ export function ComponentSelector({ categoryConfig }: ComponentSelectorProps) {
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-foreground">
-              {categoryConfig.label}
-            </span>
+            <span className="text-sm font-medium text-foreground">{categoryConfig.label}</span>
             {!categoryConfig.required && (
               <span className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded">
                 opcional
@@ -72,10 +88,7 @@ export function ComponentSelector({ categoryConfig }: ComponentSelectorProps) {
         <div className="flex items-center gap-2 flex-shrink-0">
           {selectedProduct && (
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                removeComponent(categoryConfig.key);
-              }}
+              onClick={(e) => { e.stopPropagation(); removeComponent(categoryConfig.key); }}
               className="p-1 rounded hover:bg-border text-muted-foreground hover:text-destructive transition-colors"
               aria-label="Quitar componente"
             >
@@ -88,7 +101,7 @@ export function ComponentSelector({ categoryConfig }: ComponentSelectorProps) {
             <ChevronDown className="w-4 h-4 text-muted-foreground" />
           )}
         </div>
-      </button>
+      </div>
 
       {/* Products list */}
       <AnimatePresence>
@@ -101,12 +114,12 @@ export function ComponentSelector({ categoryConfig }: ComponentSelectorProps) {
             className="overflow-hidden"
           >
             <div className="bg-background border-t border-border p-3 space-y-2 max-h-64 overflow-y-auto">
-              {/* Search */}
+              {/* Search override */}
               <div className="relative">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
                 <input
                   type="text"
-                  placeholder={`Buscar ${categoryConfig.label.toLowerCase()}...`}
+                  placeholder="Buscar otro producto..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="w-full bg-surface border border-border rounded-lg pl-8 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 transition-colors"
@@ -153,8 +166,6 @@ function ProductOption({
   isSelected: boolean;
   onSelect: () => void;
 }) {
-  const image = product.images?.[0]?.url;
-
   return (
     <button
       onClick={onSelect}
@@ -166,15 +177,13 @@ function ProductOption({
       )}
     >
       <div className="w-10 h-10 rounded-md bg-surface-elevated flex-shrink-0 overflow-hidden">
-        {image && (
-          <Image
-            src={image}
-            alt={product.name}
-            width={40}
-            height={40}
-            className="w-full h-full object-cover"
-          />
-        )}
+        <ProductImage
+          src={product.images?.[0]}
+          alt={product.name}
+          width={40}
+          height={40}
+          className="w-full h-full object-cover"
+        />
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-xs font-medium text-foreground truncate">{product.name}</p>

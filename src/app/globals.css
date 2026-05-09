@@ -125,6 +125,44 @@ body {
   border: 1px solid rgba(0, 212, 255, 0.1);
 }
 
+/* Product description HTML content */
+.product-description h1,
+.product-description h2,
+.product-description h3,
+.product-description h4 {
+  color: var(--foreground);
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+.product-description h3 { font-size: 0.9rem; }
+.product-description h4 { font-size: 0.85rem; }
+.product-description p { margin-bottom: 0.5rem; }
+.product-description ul,
+.product-description ol {
+  padding-left: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+.product-description ul { list-style-type: disc; }
+.product-description ol { list-style-type: decimal; }
+.product-description li { margin-bottom: 0.2rem; }
+.product-description strong { color: var(--foreground); font-weight: 600; }
+.product-description em { color: var(--primary); font-style: normal; }
+.product-description a { color: var(--primary); text-decoration: underline; }
+
+/* ── PC Parts animations ── */
+@keyframes fan-spin   { to { transform: rotate(360deg); } }
+@keyframes fan-spin-r { to { transform: rotate(-360deg); } }
+@keyframes rgb-shift  {
+  0%   { stop-color: #00d4ff; }
+  33%  { stop-color: #8b5cf6; }
+  66%  { stop-color: #ec4899; }
+  100% { stop-color: #00d4ff; }
+}
+@keyframes led-blink  { 0%,100% { opacity:.3; } 50% { opacity:1; } }
+@keyframes trace-flow { 0% { stroke-dashoffset:40; } 100% { stroke-dashoffset:0; } }
+@keyframes slot-glow  { 0%,100% { filter:brightness(1); } 50% { filter:brightness(1.35); } }
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Cpu } from "lucide-react";
 import { PCSimulator } from "@/components/simulator/PCSimulator";
+import { TowerScrollAnimation } from "@/components/simulator/TowerScrollAnimation";
 
 export const metadata: Metadata = {
   title: "Simulador de PC",
@@ -11,26 +12,33 @@ export const metadata: Metadata = {
 
 export default function SimuladorPage() {
   return (
-    <div className="min-h-screen bg-dot-pattern">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {/* Header */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-sm font-medium px-4 py-1.5 rounded-full mb-4">
-            <Cpu className="w-4 h-4" />
-            Feature estrella
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-3">
-            Simulador de PC
-          </h1>
-          <p className="text-muted-foreground max-w-xl mx-auto">
-            Arma tu PC ideal con componentes reales de nuestro inventario.
-            Selecciona cada pieza y agrega todo al carrito con un solo clic.
-          </p>
-        </div>
+    <div className="min-h-screen">
+      {/* Scroll animation — full screen, 500vh */}
+      <Suspense>
+        <TowerScrollAnimation />
+      </Suspense>
 
-        <Suspense>
-          <PCSimulator />
-        </Suspense>
+      {/* Simulator content — anchored by CTA button */}
+      <div id="simulador-interactivo" className="bg-dot-pattern">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 text-primary text-sm font-medium px-4 py-1.5 rounded-full mb-4">
+              <Cpu className="w-4 h-4" />
+              Feature estrella
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-3">
+              Simulador de PC
+            </h1>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              Arma tu PC ideal con componentes reales de nuestro inventario.
+              Selecciona cada pieza y agrega todo al carrito con un solo clic.
+            </p>
+          </div>
+
+          <Suspense>
+            <PCSimulator />
+          </Suspense>
+        </div>
       </div>
     </div>
   );

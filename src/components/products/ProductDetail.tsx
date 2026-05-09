@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
-import { ShoppingCart, Check, ChevronLeft, Zap } from "lucide-react";
+import { ShoppingCart, Check, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useCart } from "@/hooks/useCart";
 import { useCartStore } from "@/store/cart.store";
 import { formatPrice, cn } from "@/lib/utils";
+import { ProductImage } from "@/components/ui/product-image";
 import type { Product, ProductVariant } from "@/types";
 
 export function ProductDetail({ product }: { product: Product }) {
@@ -64,27 +64,21 @@ export function ProductDetail({ product }: { product: Product }) {
             animate={{ opacity: 1 }}
             className="relative aspect-square rounded-2xl overflow-hidden bg-surface-elevated border border-border"
           >
-            {product.images?.[selectedImage]?.url ? (
-              <Image
-                src={product.images[selectedImage].url}
-                alt={product.name}
-                fill
-                className="object-contain p-4"
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                priority
-              />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-                <Zap className="w-16 h-16 opacity-20" />
-              </div>
-            )}
+            <ProductImage
+              src={product.images?.[selectedImage]}
+              alt={product.name}
+              fill
+              className="object-contain p-4"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              priority
+            />
           </motion.div>
 
           {(product.images?.length ?? 0) > 1 && (
             <div className="flex gap-2 overflow-x-auto">
-              {product.images!.map((img, i) => (
+              {product.images!.map((url, i) => (
                 <button
-                  key={img.id}
+                  key={i}
                   onClick={() => setSelectedImage(i)}
                   className={cn(
                     "w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all",
@@ -93,8 +87,8 @@ export function ProductDetail({ product }: { product: Product }) {
                       : "border-border hover:border-primary/50"
                   )}
                 >
-                  <Image
-                    src={img.url}
+                  <ProductImage
+                    src={url}
                     alt={`Vista ${i + 1}`}
                     width={64}
                     height={64}
@@ -198,9 +192,10 @@ export function ProductDetail({ product }: { product: Product }) {
           {product.description && (
             <div className="pt-4 border-t border-border">
               <h2 className="text-sm font-semibold text-foreground mb-2">Descripción</h2>
-              <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
-                {product.description}
-              </p>
+              <div
+                className="product-description text-sm text-muted-foreground leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: product.description }}
+              />
             </div>
           )}
         </div>

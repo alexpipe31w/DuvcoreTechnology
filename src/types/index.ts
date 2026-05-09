@@ -1,12 +1,5 @@
 // Stockup API types
 
-export interface ProductImage {
-  id: string;
-  url: string;
-  alt?: string;
-  order: number;
-}
-
 export interface ProductVariant {
   id: string;
   name: string;
@@ -23,7 +16,7 @@ export interface Product {
   description?: string;
   price: number;
   stock: number;
-  images: ProductImage[] | null;
+  images: string[] | null;
   variants: ProductVariant[] | null;
   categoryId?: string;
   category?: Category;
@@ -54,6 +47,7 @@ export interface CartItem {
 }
 
 export interface Cart {
+  id: string;
   sessionId: string;
   items: CartItem[];
   totalValue: number;
@@ -85,7 +79,8 @@ export interface AddToCartPayload {
 }
 
 export interface UpdateCartPayload {
-  cartItemId: string;
+  cartId: string;
+  itemId: string;
   quantity: number;
 }
 

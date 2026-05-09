@@ -67,7 +67,7 @@ export function BuildSummary() {
           (cat) => selectedComponents[cat.key]
         ).map((cat) => {
           const product = selectedComponents[cat.key]!;
-          const image = product.images?.[0]?.url;
+          const image = product.images?.[0];
           return (
             <div key={cat.key} className="flex items-center gap-3 py-1">
               <div className="w-8 h-8 rounded-md bg-surface-elevated flex-shrink-0 overflow-hidden">

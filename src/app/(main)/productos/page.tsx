@@ -3,6 +3,8 @@ import { Suspense } from "react";
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { ProductGridSkeleton } from "@/components/products/ProductGridSkeleton";
 import { ProductFilters } from "@/components/products/ProductFilters";
+import { FeaturedCarousel } from "@/components/products/FeaturedCarousel";
+import { getCategoryBySlug } from "@/lib/categories";
 
 export const metadata: Metadata = {
   title: "Productos",
@@ -13,21 +15,30 @@ export const metadata: Metadata = {
 interface ProductsPageProps {
   searchParams: Promise<{
     search?: string;
-    categoryId?: string;
+    cat?: string;
   }>;
 }
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const params = await searchParams;
 
+  // Resolve category slug → search term for the API
+  const catDef = params.cat ? getCategoryBySlug(params.cat) : undefined;
+  const resolvedSearch = params.search ?? catDef?.search;
+  const pageTitle = params.search
+    ? `Resultados para "${params.search}"`
+    : catDef
+    ? catDef.label
+    : "Todos los productos";
+
+  const isFiltered = !!(params.search || params.cat);
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      {!isFiltered && <FeaturedCarousel />}
+
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground">
-          {params.search
-            ? `Resultados para "${params.search}"`
-            : "Todos los productos"}
-        </h1>
+        <h1 className="text-3xl font-bold text-foreground">{pageTitle}</h1>
         <p className="text-muted-foreground mt-1 text-sm">
           Tecnología original al mejor precio
         </p>
@@ -53,8 +64,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           <Suspense fallback={<ProductGridSkeleton />}>
             <ProductGrid
               filters={{
-                search: params.search,
-                categoryId: params.categoryId,
+                search: resolvedSearch,
                 isActive: true,
               }}
             />

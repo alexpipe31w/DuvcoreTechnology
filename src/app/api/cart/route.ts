@@ -14,6 +14,7 @@ const addSchema = z.object({
 });
 
 const updateSchema = z.object({
+  cartId: z.string().uuid(),
   cartItemId: z.string().uuid(),
   quantity: z.number().int().min(0).max(99),
 });
@@ -84,7 +85,11 @@ export async function PATCH(request: NextRequest) {
   }
 
   try {
-    const cart = await updateCartItem(parsed.data);
+    const cart = await updateCartItem({
+      cartId: parsed.data.cartId,
+      itemId: parsed.data.cartItemId,
+      quantity: parsed.data.quantity,
+    });
     return NextResponse.json(cart);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Error interno";

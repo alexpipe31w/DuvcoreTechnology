@@ -39,15 +39,16 @@ async function fetchStockup<T>(
   });
 
   if (!res.ok) {
-    const errorBody = (await res.json().catch(() => ({
-      error: "Unknown error",
-      code: "UNKNOWN",
-    }))) as StockupError;
-    throw new StockupApiError(
-      errorBody.code ?? "UNKNOWN",
-      errorBody.error ?? "Request failed",
-      res.status
-    );
+    const errorBody = await res.json().catch(() => null);
+    // StockUp returns { error: { message, code } } or { error: string }
+    const errObj = errorBody?.error;
+    const message =
+      typeof errObj === "string" ? errObj
+      : typeof errObj?.message === "string" ? errObj.message
+      : "Request failed";
+    const code =
+      typeof errObj?.code === "string" ? errObj.code : "UNKNOWN";
+    throw new StockupApiError(code, message, res.status);
   }
 
   const json = await res.json();
@@ -141,8 +142,8 @@ export async function updateCartItem(payload: UpdateCartPayload): Promise<Cart> 
   );
 }
 
-export async function removeCartItem(cartItemId: string): Promise<Cart> {
-  return updateCartItem({ cartItemId, quantity: 0 });
+export async function removeCartItem(cartId: string, itemId: string): Promise<Cart> {
+  return updateCartItem({ cartId, itemId, quantity: 0 });
 }
 
 // --- Coupons ---

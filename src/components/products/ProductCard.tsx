@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { ShoppingCart, Zap } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
+import { ProductImage } from "@/components/ui/product-image";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useCart } from "@/hooks/useCart";
@@ -19,7 +19,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const { openCart } = useCartStore();
   const [addedId, setAddedId] = useState<string | null>(null);
 
-  const image = product.images?.[0]?.url;
+  const image = product.images?.[0];
   const isNew = product.createdAt
     ? Date.now() - new Date(product.createdAt).getTime() < 30 * 24 * 60 * 60 * 1000
     : false;
@@ -49,19 +49,13 @@ export function ProductCard({ product }: ProductCardProps) {
       <Link href={`/productos/${product.id}`} className="block">
         {/* Image */}
         <div className="relative aspect-square bg-surface-elevated overflow-hidden">
-          {image ? (
-            <Image
-              src={image}
-              alt={product.name}
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-              <Zap className="w-8 h-8 opacity-20" />
-            </div>
-          )}
+          <ProductImage
+            src={image}
+            alt={product.name}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          />
 
           {/* Badges */}
           <div className="absolute top-2 left-2 flex flex-col gap-1">
