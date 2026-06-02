@@ -115,9 +115,9 @@ export default function BlogPage() {
               rel="noopener noreferrer"
               className="group relative aspect-[9/16] rounded-xl overflow-hidden bg-surface-elevated border border-border hover:border-primary/40 transition-all duration-300 hover:shadow-lg hover:shadow-primary/10"
             >
-              {v.thumb ? (
+              {v.url ? (
                 <Image
-                  src={v.thumb}
+                  src={`/api/tiktok-thumb?url=${encodeURIComponent(v.url)}`}
                   alt={v.title}
                   fill
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
