@@ -1,6 +1,10 @@
 import Groq from "groq-sdk";
 import { NextRequest } from "next/server";
 
+// gpt-oss responde con mucho Markdown y el widget lo pinta como texto plano.
+const PLAIN_TEXT_RULE =
+  'Formato: el chat muestra texto plano, no Markdown. No uses asteriscos, almohadillas, tablas ni barras verticales; usa frases cortas, saltos de línea, guiones simples y emojis.';
+
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 const SYSTEM_PROMPT = `Eres el asistente virtual de Duvcore Technology, una marca personal de tecnología colombiana fundada y liderada por Duvan, técnico en sistemas con más de 5 años de experiencia.
@@ -51,7 +55,9 @@ export async function POST(req: NextRequest) {
       // llama-3.3-70b-versatile lo retiró Groq el 16-08-2026; este es su reemplazo recomendado.
       model: "openai/gpt-oss-120b",
       messages: [
-        { role: "system", content: SYSTEM_PROMPT },
+        { role: "system", content: `${SYSTEM_PROMPT}
+
+${PLAIN_TEXT_RULE}` },
         ...messages,
       ],
       stream: true,
