@@ -48,13 +48,16 @@ export async function POST(req: NextRequest) {
     const { messages } = await req.json();
 
     const stream = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      // llama-3.3-70b-versatile lo retiró Groq el 16-08-2026; este es su reemplazo recomendado.
+      model: "openai/gpt-oss-120b",
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         ...messages,
       ],
       stream: true,
-      max_tokens: 500,
+      // gpt-oss razona antes de responder y ese razonamiento sale del mismo max_tokens.
+      reasoning_effort: "low",
+      max_tokens: 2000,
       temperature: 0.7,
     });
 
